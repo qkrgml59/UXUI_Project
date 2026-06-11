@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PassUIManager : MonoBehaviour
 {
@@ -12,8 +13,16 @@ public class PassUIManager : MonoBehaviour
     [Header("Quest List")]
     public List<CanvasGroup> questItems;
 
+    [Header("Progress Bar")]
+    public Image progressBarFill; 
+    private float currentProgress = 0f;
+
+    private Vector2 characterTargetPos;
+
     void Start()
     {
+        characterTargetPos = characterPanel.anchoredPosition;
+
         InitUI();
         PlayEnterAnimation();
     }
@@ -23,7 +32,7 @@ public class PassUIManager : MonoBehaviour
         leftMenuPanel.alpha = 0;
         mainContentPanel.alpha = 0;
 
-        characterPanel.anchoredPosition = new Vector2(710, 0);
+        characterPanel.anchoredPosition = new Vector2(characterTargetPos.x + 800f, characterTargetPos.y);
 
         foreach (var item in questItems)
         {
@@ -37,7 +46,7 @@ public class PassUIManager : MonoBehaviour
         leftMenuPanel.DOFade(1f, 0.4f).SetEase(Ease.OutQuad);
         mainContentPanel.DOFade(1f, 0.4f).SetEase(Ease.OutQuad);
 
-        characterPanel.DOAnchorPos(Vector2.zero, 0.6f).SetEase(Ease.OutBack);
+        characterPanel.DOAnchorPos(characterTargetPos, 0.6f).SetEase(Ease.OutBack);
 
         Sequence listSequence = DOTween.Sequence();
 
@@ -51,8 +60,27 @@ public class PassUIManager : MonoBehaviour
         }
     }
 
-    public void OnClickActionButton(RectTransform buttonRect)
+    public void OnClickRewardButton(CanvasGroup questItemCanvasGroup)
     {
-        buttonRect.DOPunchScale(new Vector3(-0.1f, -0.1f, 0), 0.2f, 5, 1);
+        questItemCanvasGroup.interactable = false;
+        questItemCanvasGroup.blocksRaycasts = false;
+
+        questItemCanvasGroup.DOFade(0f, 0.3f);
+        questItemCanvasGroup.transform.DOScale(Vector3.zero, 0.3f)
+            .SetEase(Ease.InBack)
+            .OnComplete(() =>
+            {
+                questItemCanvasGroup.gameObject.SetActive(false);
+            });
+
+        AddProgress(0.2f);
+    }
+
+    private void AddProgress(float amount)
+    {
+        currentProgress += amount;
+        if (currentProgress > 1f) currentProgress = 1f;
+
+        progressBarFill.DOFillAmount(currentProgress, 0.5f).SetEase(Ease.OutQuad);
     }
 }
