@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ButtonHoverEffect : MonoBehaviour
+public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("호버 크기")]
     [SerializeField] private float hoverScale = 1.1f;
